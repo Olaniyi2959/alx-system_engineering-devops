@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# installs and sets NGINX to listen at port 80
+sudo apt-get update -y
+# Install engineX
+sudo apt-get install nginx -y
+# set NGINX to the port 80
+sudo ufw allow "Nginx HTTP"
+# let NGINX listen on port 80
+sudo sed -i 's/8080/80/' /etc/nginx/sites-enabled/default
+echo "Hello, World!" | sudo tee /var/www/html/index.html
+sudo service nginx start
