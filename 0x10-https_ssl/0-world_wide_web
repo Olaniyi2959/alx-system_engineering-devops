@@ -1,28 +1,18 @@
 #!/usr/bin/env bash
-# Display information about subdomains.
-# Configures;
-#  www-> 167389-lb-01 100.26.164.61
-#  web-01-> 167389-web-01 -54.89.194.128
-#  web-02-> 167389-web-02 -54.209.119.141
+# Script that will display information about subdomains
 
-subdomains_all=("www" "lb-01" "web-01" "web-02")
-runDig () {
-    subdomain="$1"
-    domain="$2"
-
-    dig "$subdomain.$domain" | grep -A1 'ANSWER SECTION:' | tail -1 | awk -v
-s="$subdomain" 'BEGIN { FS = " " } ; { print "The subdomain " s " is a " $4
-"\nrecord and points to " $5 }'
+DNS_info () {
+    ANSWER=$(dig $2 | grep -A1 'ANSWER SECTION:' | awk 'NR==2 {print $0}')
+    echo "The subdomain $1 is a $(echo $ANSWER | awk '{print $4}') record and points to $(echo $ANSWER | awk '{print $5}')"
 }
 
-if [ $# -eq 1 ]; then
-    domain="$1"
-    for i in "${subdomains_all[@]}"
-    do
-    runDig "$i" "$domain"
+if [[ $# == 1 ]]; then
+    subdomains=('www' 'lb-01' 'web-01' 'web-02')
+    for i in "${subdomains[@]}"; do
+	CONCAT="$i.$1"
+	DNS_info $i $CONCAT
     done
-elif [ $# -eq 2 ]; then
-    domain="$1"
-    subdomain="$2"
-    runDig "$subdomain" "$domain"
+else
+    CONCAT="$2.$1"
+    DNS_info $2 $CONCAT
 fi
